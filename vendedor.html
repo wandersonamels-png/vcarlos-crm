@@ -77,6 +77,37 @@ textarea{resize:vertical;min-height:64px}
 .abtn{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .abtn:hover{border-color:var(--green);background:var(--green-pale)}
 .empty{text-align:center;padding:32px;color:#aaa;font-size:13px}
+/* KANBAN */
+.view-tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(0,0,0,0.05);padding:4px;border-radius:10px;width:fit-content}
+.vtab{padding:7px 18px;font-size:13px;font-weight:600;border-radius:8px;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s}
+.vtab.active{background:#fff;color:var(--green);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.kanban-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start;overflow-x:auto;padding-bottom:12px}
+@media(max-width:700px){.kanban-wrap{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.kanban-wrap{grid-template-columns:1fr}}
+.k-col{background:#f3f4f6;border-radius:12px;padding:12px;min-height:200px;transition:background .2s}
+.k-col.drag-over{background:#e8f2ee;border:2px dashed var(--green)}
+.k-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.k-col-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.k-count{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(0,0,0,0.08);color:var(--muted)}
+.k-card{background:#fff;border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid var(--border);cursor:grab;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all .2s;user-select:none}
+.k-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.12);transform:translateY(-1px)}
+.k-card.dragging{opacity:0.4;transform:scale(0.98)}
+.k-card-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.k-card-op{font-size:11px;color:var(--muted);margin-bottom:6px}
+.k-card-footer{display:flex;align-items:center;justify-content:space-between}
+.k-card-tel{font-size:11px;color:var(--muted)}
+.k-card-val{font-size:11px;font-weight:700;color:var(--green)}
+.k-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.col-negociacao .k-dot{background:#185fa5}
+.col-semresposta .k-dot{background:#888}
+.col-fechado .k-dot{background:#2e7d32}
+.col-perdido .k-dot{background:#c0392b}
+.col-negociacao .k-col-title{color:#185fa5}
+.col-semresposta .k-col-title{color:#888}
+.col-fechado .k-col-title{color:#2e7d32}
+.col-perdido .k-col-title{color:#c0392b}
+.k-empty{text-align:center;padding:20px 10px;color:#ccc;font-size:12px}
+
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .fbtn{padding:7px 16px;font-size:12px;font-weight:600;border-radius:99px;border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all .15s}
 .fbtn:hover{border-color:var(--green);color:var(--green)}
@@ -185,14 +216,57 @@ textarea{resize:vertical;min-height:64px}
   <div class="page-header">
     <h2>Meus registros</h2>
   </div>
-  <div class="filters">
-    <button class="fbtn active" onclick="filtrarV('todos',this)">Todos</button>
-    <button class="fbtn" onclick="filtrarV('fechado',this)">Fechados</button>
-    <button class="fbtn" onclick="filtrarV('negociacao',this)">Em negociação</button>
-    <button class="fbtn" onclick="filtrarV('perdido',this)">Perdidos</button>
-    <button class="fbtn" onclick="filtrarV('semresposta',this)">Sem resposta</button>
+
+  <div class="view-tabs">
+    <button class="vtab active" onclick="switchView('lista', this)">📋 Lista</button>
+    <button class="vtab" onclick="switchView('kanban', this)">🗂️ Kanban</button>
   </div>
-  <div id="lista"><p class="empty">Nenhum lead registrado ainda.</p></div>
+
+  <!-- VISTA LISTA -->
+  <div id="view-lista">
+    <div class="filters">
+      <button class="fbtn active" onclick="filtrarV('todos',this)">Todos</button>
+      <button class="fbtn" onclick="filtrarV('fechado',this)">Fechados</button>
+      <button class="fbtn" onclick="filtrarV('negociacao',this)">Em negociação</button>
+      <button class="fbtn" onclick="filtrarV('perdido',this)">Perdidos</button>
+      <button class="fbtn" onclick="filtrarV('semresposta',this)">Sem resposta</button>
+    </div>
+    <div id="lista"><p class="empty">Nenhum lead registrado ainda.</p></div>
+  </div>
+
+  <!-- VISTA KANBAN -->
+  <div id="view-kanban" style="display:none">
+    <div class="kanban-wrap">
+      <div class="k-col col-negociacao" id="col-negociacao" ondragover="dragOver(event)" ondrop="drop(event,'negociacao')" ondragleave="dragLeave(event)">
+        <div class="k-col-header">
+          <span class="k-col-title">Em negociação</span>
+          <span class="k-count" id="cnt-negociacao">0</span>
+        </div>
+        <div class="k-cards" id="cards-negociacao"></div>
+      </div>
+      <div class="k-col col-semresposta" id="col-semresposta" ondragover="dragOver(event)" ondrop="drop(event,'semresposta')" ondragleave="dragLeave(event)">
+        <div class="k-col-header">
+          <span class="k-col-title">Sem resposta</span>
+          <span class="k-count" id="cnt-semresposta">0</span>
+        </div>
+        <div class="k-cards" id="cards-semresposta"></div>
+      </div>
+      <div class="k-col col-fechado" id="col-fechado" ondragover="dragOver(event)" ondrop="drop(event,'fechado')" ondragleave="dragLeave(event)">
+        <div class="k-col-header">
+          <span class="k-col-title">Fechado</span>
+          <span class="k-count" id="cnt-fechado">0</span>
+        </div>
+        <div class="k-cards" id="cards-fechado"></div>
+      </div>
+      <div class="k-col col-perdido" id="col-perdido" ondragover="dragOver(event)" ondrop="drop(event,'perdido')" ondragleave="dragLeave(event)">
+        <div class="k-col-header">
+          <span class="k-col-title">Perdido</span>
+          <span class="k-count" id="cnt-perdido">0</span>
+        </div>
+        <div class="k-cards" id="cards-perdido"></div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <!-- MODAL PERDA -->
@@ -291,6 +365,7 @@ db.collection('leads')
     renderDash(cache);
     const listaFiltrada=filtroV==='todos'?cache:cache.filter(l=>l.status===filtroV);
     renderLista(listaFiltrada);
+    if (viewAtual === 'kanban') renderKanban(cache);
   },e=>alert('Erro: '+e.message));
 
 function onStatus(){
@@ -372,6 +447,75 @@ function filtrarV(f,btn){
   renderLista(lista);
 }
 
+
+// ── KANBAN ────────────────────────────────────────────────────────────────────
+let viewAtual = 'lista';
+let dragId = null;
+
+function switchView(view, btn) {
+  viewAtual = view;
+  document.querySelectorAll('.vtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('view-lista').style.display = view === 'lista' ? 'block' : 'none';
+  document.getElementById('view-kanban').style.display = view === 'kanban' ? 'block' : 'none';
+  if (view === 'kanban') renderKanban(cache);
+}
+
+function renderKanban(leads) {
+  const colunas = ['negociacao', 'semresposta', 'fechado', 'perdido'];
+  colunas.forEach(col => {
+    const items = leads.filter(l => l.status === col);
+    const el = document.getElementById('cards-' + col);
+    const cnt = document.getElementById('cnt-' + col);
+    cnt.textContent = items.length;
+    if (!items.length) {
+      el.innerHTML = '<p class="k-empty">Arraste um card aqui</p>';
+      return;
+    }
+    el.innerHTML = items.map(l => `
+      <div class="k-card" draggable="true"
+        ondragstart="dragStart(event,'${l.id}')"
+        ondragend="dragEnd(event)">
+        <div class="k-card-name">${l.lead}</div>
+        <div class="k-card-op">${l.campanha}</div>
+        <div class="k-card-footer">
+          <span class="k-card-tel">${l.telefone || '—'}</span>
+          ${l.valor > 0 ? `<span class="k-card-val">R$ ${l.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>` : '<span class="k-dot"></span>'}
+        </div>
+      </div>`).join('');
+  });
+}
+
+function dragStart(e, id) {
+  dragId = id;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function dragEnd(e) {
+  e.target.classList.remove('dragging');
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+async function drop(e, novoStatus) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragId) return;
+  const lead = cache.find(l => l.id === dragId);
+  if (!lead || lead.status === novoStatus) return;
+  try {
+    await db.collection('leads').doc(dragId).update({ status: novoStatus });
+  } catch(err) { alert('Erro ao mover card: ' + err.message); }
+  dragId = null;
+}
 async function salvarEdit(){
   const status=document.getElementById('e-status').value,mot=document.getElementById('e-motivo').value,obs=document.getElementById('e-obs').value.trim();
   try{await db.collection('leads').doc(editId).update({lead:document.getElementById('e-lead').value.trim(),telefone:document.getElementById('e-tel').value.trim(),campanha:document.getElementById('e-op').value,status,valor:status==='fechado'?(parseFloat(document.getElementById('e-valor').value)||0):0,obs:status==='perdido'?(obs||mot):obs});fecharEdit();}
