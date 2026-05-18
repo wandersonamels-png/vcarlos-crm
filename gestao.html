@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V Carlos Saúde — Gestão</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif}
+:root{--green:#1E4D3B;--green-light:#2A6B52;--green-pale:#E8F2EE;--gold:#C9A84C;--text:#1a1a1a;--muted:#6b7280;--border:#e5e7eb;--bg:#F7F9F8;--red:#c0392b;--blue:#185fa5}
+body{background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--green);position:relative;overflow:hidden}
+.login-wrap::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.login-box{background:#fff;border-radius:20px;padding:2.5rem;width:90%;max-width:360px;z-index:1;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.login-logo{text-align:center;margin-bottom:1.5rem}
+.login-logo img{width:80px;height:80px;border-radius:50%;border:3px solid var(--green-pale)}
+.login-title{font-size:20px;font-weight:700;color:var(--green);text-align:center;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:1.5rem}
+.divider-gold{width:32px;height:2px;background:var(--gold);margin:0 auto 1.5rem}
+input[type=password]{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;outline:none;margin-bottom:10px;transition:border-color .15s}
+input[type=password]:focus{border-color:var(--green)}
+.btn-login{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
+.btn-login:hover{background:var(--green-light)}
+.err{font-size:12px;color:var(--red);margin-bottom:10px;display:none;text-align:center;font-weight:600}
+
+/* HEADER */
+header{background:var(--green);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,0.15)}
+.h-left{display:flex;align-items:center;gap:12px}
+.h-logo{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.25)}
+.h-title{font-size:15px;font-weight:600;color:#fff}
+.h-badge{background:var(--gold);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;text-transform:uppercase}
+.btn-out{padding:8px 16px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;font-size:13px;cursor:pointer;transition:background .15s}
+.btn-out:hover{background:rgba(255,255,255,0.2)}
+
+main{max-width:980px;margin:0 auto;padding:28px 16px}
+.page-header{margin-bottom:20px}
+.page-header h2{font-size:20px;font-weight:700;color:var(--green);margin-bottom:3px}
+.page-header p{font-size:13px;color:var(--muted)}
+
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.mcard{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.mlabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.mval{font-size:26px;font-weight:700;color:var(--green)}
+.mval.gold{color:var(--gold);font-size:18px}
+.msub{font-size:11px;color:#aaa;margin-top:3px}
+
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+@media(max-width:600px){.charts{grid-template-columns:1fr}}
+.chart-card{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px}
+.bar-wrap{margin-bottom:10px}
+.bar-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px}
+.bar-track{height:7px;background:#f0f0f0;border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:var(--green);transition:width .5s}
+.bar-fill.gold{background:var(--gold)}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.fbtn{padding:7px 16px;font-size:12px;font-weight:600;border-radius:99px;border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all .15s}
+.fbtn:hover{border-color:var(--green);color:var(--green)}
+.fbtn.active{background:var(--green);color:#fff;border-color:var(--green)}
+
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:13px}
+th{text-align:left;padding:11px 16px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;background:#f9fafb;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafdf9}
+.badge{display:inline-block;font-size:10px;padding:3px 10px;border-radius:99px;font-weight:700}
+.badge.fechado{background:#e8f5e9;color:#2e7d32}
+.badge.negociacao{background:#e3f2fd;color:var(--blue)}
+.badge.perdido{background:#fdecea;color:var(--red)}
+.badge.semresposta{background:#f5f5f5;color:#666}
+.del-btn{padding:5px 12px;background:#fdecea;color:var(--red);border:1px solid #f5c6c6;border-radius:7px;cursor:pointer;font-size:11px;font-weight:600;transition:background .15s}
+.del-btn:hover{background:#f8d7da}
+.empty{text-align:center;padding:32px;color:#aaa;font-size:13px}
+.lead-avatar-sm{width:30px;height:30px;border-radius:8px;background:var(--green-pale);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);margin-right:8px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<div id="tela-login" class="login-wrap">
+  <div class="login-box">
+    <div class="login-logo"><img src="logo.png" alt="V Carlos Saúde"></div>
+    <div class="login-title">V Carlos Saúde</div>
+    <div class="login-sub">Gestão de tráfego</div>
+    <div class="divider-gold"></div>
+    <input type="password" id="senha" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')entrar()">
+    <p class="err" id="err-senha">Senha incorreta. Tente novamente.</p>
+    <button class="btn-login" onclick="entrar()">Acessar dashboard</button>
+  </div>
+</div>
+
+<div id="tela-dash" style="display:none">
+  <header>
+    <div class="h-left">
+      <img class="h-logo" src="logo.png" alt="V Carlos Saúde">
+      <span class="h-title">V Carlos Saúde</span>
+      <span class="h-badge">Gestão</span>
+    </div>
+    <button class="btn-out" onclick="sair()">← Sair</button>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h2>Dashboard geral</h2>
+      <p>Acompanhamento em tempo real de toda a equipe</p>
+    </div>
+
+    <div class="metrics">
+      <div class="mcard"><div class="mlabel">Total de leads</div><div class="mval" id="m-total">0</div></div>
+      <div class="mcard"><div class="mlabel">Fechados</div><div class="mval" id="m-fech">0</div></div>
+      <div class="mcard"><div class="mlabel">Perdidos</div><div class="mval" id="m-perd">0</div></div>
+      <div class="mcard"><div class="mlabel">Conversão</div><div class="mval" id="m-taxa">0%</div></div>
+      <div class="mcard"><div class="mlabel">Receita total</div><div class="mval gold" id="m-rec">R$ 0</div><div class="msub" id="m-ticket"></div></div>
+    </div>
+
+    <div class="charts">
+      <div>
+        <div class="section-label">Por operadora</div>
+        <div class="chart-card" id="c-op"><p class="empty" style="padding:16px">Sem dados.</p></div>
+      </div>
+      <div>
+        <div class="section-label">Por vendedor</div>
+        <div class="chart-card" id="c-vend"><p class="empty" style="padding:16px">Sem dados.</p></div>
+      </div>
+    </div>
+
+    <div class="page-header">
+      <h2>Todos os leads</h2>
+    </div>
+    <div class="filters">
+      <button class="fbtn active" onclick="filtrar('todos',this)">Todos</button>
+      <button class="fbtn" onclick="filtrar('fechado',this)">Fechados</button>
+      <button class="fbtn" onclick="filtrar('negociacao',this)">Em negociação</button>
+      <button class="fbtn" onclick="filtrar('perdido',this)">Perdidos</button>
+      <button class="fbtn" onclick="filtrar('semresposta',this)">Sem resposta</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Lead</th><th>Telefone</th><th>Vendedor</th><th>Operadora</th><th>Status</th><th>Valor</th><th>Observação</th><th>Data/hora</th><th></th></tr>
+        </thead>
+        <tbody id="tbody"><tr><td colspan="9" class="empty">Nenhum lead ainda.</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyAkN0VTeYpP1gPKnv2ZaW1xckzdvden6Cw",
+  authDomain:"crm-simple-929e5.firebaseapp.com",
+  projectId:"crm-simple-929e5",
+  storageBucket:"crm-simple-929e5.firebasestorage.app",
+  messagingSenderId:"48178824461",
+  appId:"1:48178824461:web:63c822d35f344e7c02dc44"
+});
+const db=firebase.firestore();
+let todos=[],filtro='todos',unsub=null;
+
+function entrar(){
+  const s=document.getElementById('senha').value;
+  if(s==='Bccw2408'){
+    document.getElementById('tela-login').style.display='none';
+    document.getElementById('tela-dash').style.display='block';
+    document.getElementById('err-senha').style.display='none';
+    iniciar();
+  }else{document.getElementById('err-senha').style.display='block';document.getElementById('senha').value='';}
+}
+
+function sair(){if(unsub)unsub();document.getElementById('tela-login').style.display='flex';document.getElementById('tela-dash').style.display='none';}
+
+function iniciar(){
+  if(unsub)unsub();
+  unsub=db.collection('leads').orderBy('criadoEm','desc').onSnapshot(snap=>{
+    todos=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderMetrics(todos);renderCharts(todos);renderTabela(todos,filtro);
+  },e=>alert('Erro: '+e.message));
+}
+
+function renderMetrics(leads){
+  const total=leads.length,fech=leads.filter(l=>l.status==='fechado'),perd=leads.filter(l=>l.status==='perdido'),rec=fech.reduce((a,l)=>a+(l.valor||0),0),taxa=total>0?Math.round(fech.length/total*100):0,ticket=fech.length>0?Math.round(rec/fech.length):0;
+  document.getElementById('m-total').textContent=total;document.getElementById('m-fech').textContent=fech.length;document.getElementById('m-perd').textContent=perd.length;document.getElementById('m-taxa').textContent=taxa+'%';document.getElementById('m-rec').textContent='R$ '+Math.round(rec).toLocaleString('pt-BR');document.getElementById('m-ticket').textContent='Ticket médio: R$ '+ticket.toLocaleString('pt-BR');
+}
+
+function bar(label,fech,tot,cls){const p=tot>0?Math.round(fech/tot*100):0;return`<div class="bar-wrap"><div class="bar-top"><span>${label}</span><span>${fech}/${tot} · ${p}%</span></div><div class="bar-track"><div class="bar-fill ${cls||''}" style="width:${p}%"></div></div></div>`;}
+
+function renderCharts(leads){
+  const ops=[...new Set(leads.map(l=>l.campanha))].filter(Boolean);
+  document.getElementById('c-op').innerHTML=!ops.length?'<p class="empty" style="padding:16px">Sem dados.</p>':ops.map(o=>bar(o,leads.filter(l=>l.campanha===o&&l.status==='fechado').length,leads.filter(l=>l.campanha===o).length,'')).join('');
+  const vends=[...new Set(leads.map(l=>l.vendedor))].filter(Boolean);
+  document.getElementById('c-vend').innerHTML=!vends.length?'<p class="empty" style="padding:16px">Sem dados.</p>':vends.map(v=>bar(v,leads.filter(l=>l.vendedor===v&&l.status==='fechado').length,leads.filter(l=>l.vendedor===v).length,'gold')).join('');
+}
+
+function badge(s){const m={fechado:['fechado','Fechado'],negociacao:['negociacao','Em negociação'],perdido:['perdido','Perdido'],semresposta:['semresposta','Sem resposta']};const[cls,lbl]=m[s]||['semresposta',s];return`<span class="badge ${cls}">${lbl}</span>`;}
+
+function renderTabela(leads,f){
+  const lista=f==='todos'?leads:leads.filter(l=>l.status===f);
+  const tb=document.getElementById('tbody');
+  if(!lista.length){tb.innerHTML='<tr><td colspan="9" class="empty">Nenhum lead nesta categoria.</td></tr>';return;}
+  tb.innerHTML=lista.map(l=>{
+    const data=l.criadoEm?.toDate?l.criadoEm.toDate().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+    const ini=(l.lead||'?').charAt(0).toUpperCase();
+    return`<tr>
+      <td><span class="lead-avatar-sm">${ini}</span><b>${l.lead||'—'}</b></td>
+      <td style="color:var(--muted)">${l.telefone||'—'}</td>
+      <td style="color:var(--muted)">${l.vendedor||'—'}</td>
+      <td style="color:var(--muted)">${l.campanha||'—'}</td>
+      <td>${badge(l.status)}</td>
+      <td style="font-family:monospace;font-weight:600;color:var(--green)">${l.valor>0?'R$ '+l.valor.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
+      <td style="color:var(--muted)">${l.obs||'—'}</td>
+      <td style="color:#aaa;white-space:nowrap;font-size:12px">${data}</td>
+      <td><button class="del-btn" onclick="deletar('${l.id}','${(l.lead||'').replace(/'/g,"\\'")}')">🗑️ Apagar</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrar(f,btn){filtro=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTabela(todos,filtro);}
+
+async function deletar(id,nome){if(!confirm('Apagar "'+nome+'"?'))return;try{await db.collection('leads').doc(id).delete();}catch(e){alert('Erro: '+e.message);}}
+</script>
+</body>
+</html>
