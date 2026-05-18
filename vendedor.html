@@ -77,6 +77,30 @@ textarea{resize:vertical;min-height:64px}
 .abtn{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .abtn:hover{border-color:var(--green);background:var(--green-pale)}
 .empty{text-align:center;padding:32px;color:#aaa;font-size:13px}
+/* MODAL DETALHES */
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px}
+.detail-box{background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.detail-header{background:var(--green);padding:20px 24px;display:flex;align-items:center;gap:14px}
+.detail-avatar{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0}
+.detail-header-info{flex:1}
+.detail-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:2px}
+.detail-op{font-size:12px;color:rgba(255,255,255,0.65)}
+.detail-close{background:rgba(255,255,255,0.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.detail-close:hover{background:rgba(255,255,255,0.25)}
+.detail-body{padding:20px 24px}
+.detail-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f5f5f5}
+.detail-row:last-child{border-bottom:none}
+.detail-icon{width:32px;height:32px;border-radius:8px;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.detail-key{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.detail-val{font-size:14px;color:var(--text);font-weight:500}
+.detail-val.green{color:var(--green);font-weight:700}
+.detail-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px}
+.detail-btn{flex:1;padding:10px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .15s}
+.detail-btn.edit{background:var(--green-pale);color:var(--green)}
+.detail-btn.edit:hover{background:#d0e8df}
+.detail-btn.del{background:#fdecea;color:var(--red)}
+.detail-btn.del:hover{background:#f8d7da}
+
 /* KANBAN */
 .view-tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(0,0,0,0.05);padding:4px;border-radius:10px;width:fit-content}
 .vtab{padding:7px 18px;font-size:13px;font-weight:600;border-radius:8px;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s}
@@ -107,6 +131,9 @@ textarea{resize:vertical;min-height:64px}
 .col-fechado .k-col-title{color:#2e7d32}
 .col-perdido .k-col-title{color:#c0392b}
 .k-empty{text-align:center;padding:20px 10px;color:#ccc;font-size:12px}
+.k-card.touch-dragging{opacity:0.5;box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:scale(1.02)}
+.k-col.touch-over{background:#e8f2ee;border:2px dashed var(--green)}
+.touch-ghost{position:fixed;pointer-events:none;z-index:999;opacity:0.85;transform:rotate(2deg);box-shadow:0 8px 24px rgba(0,0,0,0.2);border-radius:10px;background:#fff;padding:12px;min-width:160px;font-size:13px;border:1px solid var(--border)}
 
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .fbtn{padding:7px 16px;font-size:12px;font-weight:600;border-radius:99px;border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all .15s}
@@ -295,6 +322,46 @@ textarea{resize:vertical;min-height:64px}
   </div>
 </div>
 
+<!-- MODAL DETALHE KANBAN -->
+<div class="detail-overlay" id="modal-detalhe" onclick="if(event.target===this)fecharDetalhe()">
+  <div class="detail-box">
+    <div class="detail-header">
+      <div class="detail-avatar" id="d-avatar">?</div>
+      <div class="detail-header-info">
+        <div class="detail-name" id="d-name"></div>
+        <div class="detail-op" id="d-op"></div>
+      </div>
+      <button class="detail-close" onclick="fecharDetalhe()">×</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-row">
+        <div class="detail-icon">📞</div>
+        <div><div class="detail-key">Telefone</div><div class="detail-val" id="d-tel"></div></div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-icon">📋</div>
+        <div><div class="detail-key">Status</div><div class="detail-val" id="d-status"></div></div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-icon">💰</div>
+        <div><div class="detail-key">Valor do plano</div><div class="detail-val green" id="d-valor"></div></div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-icon">📝</div>
+        <div><div class="detail-key">Observação</div><div class="detail-val" id="d-obs"></div></div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-icon">🕐</div>
+        <div><div class="detail-key">Registrado em</div><div class="detail-val" id="d-data"></div></div>
+      </div>
+    </div>
+    <div class="detail-footer">
+      <button class="detail-btn edit" onclick="editarDoDetalhe()">✏️ Editar</button>
+      <button class="detail-btn del" onclick="deletarDoDetalhe()">🗑️ Apagar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDIÇÃO -->
 <div class="overlay" id="mod-edit">
   <div class="modal">
@@ -475,7 +542,11 @@ function renderKanban(leads) {
     el.innerHTML = items.map(l => `
       <div class="k-card" draggable="true"
         ondragstart="dragStart(event,'${l.id}')"
-        ondragend="dragEnd(event)">
+        ondragend="dragEnd(event)"
+        ontouchstart="touchStart(event,'${l.id}')"
+        ontouchmove="touchMove(event)"
+        ontouchend="touchEnd(event)"
+        onclick="abrirDetalhe('${l.id}')">
         <div class="k-card-name">${l.lead}</div>
         <div class="k-card-op">${l.campanha}</div>
         <div class="k-card-footer">
@@ -486,7 +557,10 @@ function renderKanban(leads) {
   });
 }
 
+let _isDragging = false;
+
 function dragStart(e, id) {
+  _isDragging = true;
   dragId = id;
   e.target.classList.add('dragging');
   e.dataTransfer.effectAllowed = 'move';
@@ -494,6 +568,7 @@ function dragStart(e, id) {
 
 function dragEnd(e) {
   e.target.classList.remove('dragging');
+  setTimeout(() => _isDragging = false, 100);
 }
 
 function dragOver(e) {
@@ -516,6 +591,124 @@ async function drop(e, novoStatus) {
   } catch(err) { alert('Erro ao mover card: ' + err.message); }
   dragId = null;
 }
+function abrirDetalhe(id) {
+  if (_isDragging) return;
+  const l = cache.find(x => x.id === id);
+  if (!l) return;
+
+  const statusLabel = {fechado:'Fechado',negociacao:'Em negociação',perdido:'Perdido',semresposta:'Sem resposta'};
+  const statusIcon = {fechado:'✅',negociacao:'🔄',perdido:'❌',semresposta:'📵'};
+  const ini = (l.lead || '?').charAt(0).toUpperCase();
+  const data = l.criadoEm?.toDate ? l.criadoEm.toDate().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+
+  document.getElementById('d-avatar').textContent = ini;
+  document.getElementById('d-name').textContent = l.lead || '—';
+  document.getElementById('d-op').textContent = l.campanha || '—';
+  document.getElementById('d-tel').textContent = l.telefone || 'Não informado';
+  document.getElementById('d-status').textContent = (statusIcon[l.status]||'') + ' ' + (statusLabel[l.status] || l.status);
+  document.getElementById('d-valor').textContent = l.valor > 0 ? 'R$ ' + l.valor.toLocaleString('pt-BR',{minimumFractionDigits:2}) : 'Não informado';
+  document.getElementById('d-obs').textContent = l.obs || 'Nenhuma observação';
+  document.getElementById('d-data').textContent = data;
+
+  const overlay = document.getElementById('modal-detalhe');
+  overlay.style.display = 'flex';
+  overlay._leadId = id;
+}
+
+function fecharDetalhe() {
+  document.getElementById('modal-detalhe').style.display = 'none';
+}
+
+function editarDoDetalhe() {
+  const id = document.getElementById('modal-detalhe')._leadId;
+  fecharDetalhe();
+  abrirEdit(id);
+}
+
+async function deletarDoDetalhe() {
+  const id = document.getElementById('modal-detalhe')._leadId;
+  const l = cache.find(x => x.id === id);
+  if (!l) return;
+  fecharDetalhe();
+  await deletar(id, l.lead);
+}
+
+
+// ── TOUCH (MOBILE) ────────────────────────────────────────────────────────────
+let _touchId = null;
+let _touchGhost = null;
+let _touchSourceCol = null;
+let _touchMoved = false;
+let _touchTimer = null;
+
+function touchStart(e, id) {
+  _touchMoved = false;
+  _touchTimer = setTimeout(() => {
+    _touchId = id;
+    _touchSourceCol = e.currentTarget.closest('.k-col');
+    const card = e.currentTarget;
+    card.classList.add('touch-dragging');
+
+    // Criar fantasma visual
+    _touchGhost = document.createElement('div');
+    _touchGhost.className = 'touch-ghost';
+    _touchGhost.innerHTML = `<b>${card.querySelector('.k-card-name').textContent}</b><br><span style="font-size:11px;color:#888">${card.querySelector('.k-card-op').textContent}</span>`;
+    document.body.appendChild(_touchGhost);
+
+    const touch = e.touches[0];
+    _touchGhost.style.left = (touch.clientX - 80) + 'px';
+    _touchGhost.style.top = (touch.clientY - 30) + 'px';
+  }, 200);
+}
+
+function touchMove(e) {
+  if (!_touchId) { clearTimeout(_touchTimer); return; }
+  _touchMoved = true;
+  e.preventDefault();
+
+  const touch = e.touches[0];
+  if (_touchGhost) {
+    _touchGhost.style.left = (touch.clientX - 80) + 'px';
+    _touchGhost.style.top = (touch.clientY - 30) + 'px';
+  }
+
+  // Destacar coluna sob o dedo
+  document.querySelectorAll('.k-col').forEach(col => col.classList.remove('touch-over'));
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const col = el ? el.closest('.k-col') : null;
+  if (col) col.classList.add('touch-over');
+}
+
+async function touchEnd(e) {
+  clearTimeout(_touchTimer);
+
+  if (_touchGhost) { _touchGhost.remove(); _touchGhost = null; }
+  document.querySelectorAll('.k-card').forEach(c => c.classList.remove('touch-dragging'));
+  document.querySelectorAll('.k-col').forEach(c => c.classList.remove('touch-over'));
+
+  if (!_touchId || !_touchMoved) {
+    _touchId = null;
+    return;
+  }
+
+  const touch = e.changedTouches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const col = el ? el.closest('.k-col') : null;
+
+  if (col) {
+    const novoStatus = col.id.replace('col-', '');
+    const lead = cache.find(l => l.id === _touchId);
+    if (lead && lead.status !== novoStatus) {
+      try {
+        await db.collection('leads').doc(_touchId).update({ status: novoStatus });
+      } catch(err) { alert('Erro ao mover: ' + err.message); }
+    }
+  }
+
+  _touchId = null;
+  _touchMoved = false;
+}
+
 async function salvarEdit(){
   const status=document.getElementById('e-status').value,mot=document.getElementById('e-motivo').value,obs=document.getElementById('e-obs').value.trim();
   try{await db.collection('leads').doc(editId).update({lead:document.getElementById('e-lead').value.trim(),telefone:document.getElementById('e-tel').value.trim(),campanha:document.getElementById('e-op').value,status,valor:status==='fechado'?(parseFloat(document.getElementById('e-valor').value)||0):0,obs:status==='perdido'?(obs||mot):obs});fecharEdit();}
