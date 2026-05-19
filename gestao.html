@@ -136,6 +136,11 @@ tr:hover td{background:#fafdf9}
       <button class="fbtn" onclick="filtrar('perdido',this)">Perdidos</button>
       <button class="fbtn" onclick="filtrar('semresposta',this)">Sem resposta</button>
     </div>
+    <div class="filters" style="margin-top:-6px">
+      <button class="fbtn active" onclick="filtrarOp('todos',this)">🏥 Todas operadoras</button>
+      <button class="fbtn" onclick="filtrarOp('Best Sênior',this)">Best Sênior</button>
+      <button class="fbtn" onclick="filtrarOp('Amil',this)">Amil</button>
+    </div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -159,7 +164,7 @@ firebase.initializeApp({
   appId:"1:48178824461:web:63c822d35f344e7c02dc44"
 });
 const db=firebase.firestore();
-let todos=[],filtro='todos',unsub=null;
+let todos=[],filtro='todos',filtroOp='todos',unsub=null;
 
 function entrar(){
   const s=document.getElementById('senha').value;
@@ -177,7 +182,7 @@ function iniciar(){
   if(unsub)unsub();
   unsub=db.collection('leads').orderBy('criadoEm','desc').onSnapshot(snap=>{
     todos=snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderMetrics(todos);renderCharts(todos);renderTabela(todos,filtro);
+    renderMetrics(todos);renderCharts(todos);aplicarFiltros();
   },e=>alert('Erro: '+e.message));
 }
 
@@ -197,8 +202,8 @@ function renderCharts(leads){
 
 function badge(s){const m={fechado:['fechado','Fechado'],negociacao:['negociacao','Em negociação'],perdido:['perdido','Perdido'],semresposta:['semresposta','Sem resposta']};const[cls,lbl]=m[s]||['semresposta',s];return`<span class="badge ${cls}">${lbl}</span>`;}
 
-function renderTabela(leads,f){
-  const lista=f==='todos'?leads:leads.filter(l=>l.status===f);
+function renderTabela(leads){
+  const lista=leads;
   const tb=document.getElementById('tbody');
   if(!lista.length){tb.innerHTML='<tr><td colspan="9" class="empty">Nenhum lead nesta categoria.</td></tr>';return;}
   tb.innerHTML=lista.map(l=>{
@@ -218,7 +223,26 @@ function renderTabela(leads,f){
   }).join('');
 }
 
-function filtrar(f,btn){filtro=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTabela(todos,filtro);}
+function filtrar(f,btn){
+  filtro=f;
+  btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  aplicarFiltros();
+}
+
+function filtrarOp(op,btn){
+  filtroOp=op;
+  btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  aplicarFiltros();
+}
+
+function aplicarFiltros(){
+  let lista=todos;
+  if(filtro!=='todos') lista=lista.filter(l=>l.status===filtro);
+  if(filtroOp!=='todos') lista=lista.filter(l=>l.campanha===filtroOp);
+  renderTabela(lista);
+}
 
 async function deletar(id,nome){if(!confirm('Apagar "'+nome+'"?'))return;try{await db.collection('leads').doc(id).delete();}catch(e){alert('Erro: '+e.message);}}
 </script>

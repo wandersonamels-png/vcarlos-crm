@@ -258,6 +258,11 @@ textarea{resize:vertical;min-height:64px}
       <button class="fbtn" onclick="filtrarV('perdido',this)">Perdidos</button>
       <button class="fbtn" onclick="filtrarV('semresposta',this)">Sem resposta</button>
     </div>
+    <div class="filters" style="margin-top:-6px">
+      <button class="fbtn active" id="op-todos-v" onclick="filtrarOpV('todos',this)">🏥 Todas operadoras</button>
+      <button class="fbtn" onclick="filtrarOpV('Best Sênior',this)">Best Sênior</button>
+      <button class="fbtn" onclick="filtrarOpV('Amil',this)">Amil</button>
+    </div>
     <div id="lista"><p class="empty">Nenhum lead registrado ainda.</p></div>
   </div>
 
@@ -418,7 +423,7 @@ firebase.initializeApp({
 });
 const db=firebase.firestore();
 const VENDEDOR='Vilma Carlos Saúde';
-let cache=[],motivo='',editId=null,filtroV='todos';
+let cache=[],motivo='',editId=null,filtroV='todos',filtroOpV='todos';
 
 db.collection('leads')
   .onSnapshot(snap=>{
@@ -430,8 +435,7 @@ db.collection('leads')
       return tb-ta;
     });
     renderDash(cache);
-    const listaFiltrada=filtroV==='todos'?cache:cache.filter(l=>l.status===filtroV);
-    renderLista(listaFiltrada);
+    aplicarFiltrosV();
     if (viewAtual === 'kanban') renderKanban(cache);
   },e=>alert('Erro: '+e.message));
 
@@ -508,9 +512,23 @@ function fecharEdit(){document.getElementById('mod-edit').style.display='none';}
 function onEditStatus(){const s=document.getElementById('e-status').value;document.getElementById('e-wrap-valor').style.display=s==='fechado'?'block':'none';document.getElementById('e-wrap-motivo').style.display=s==='perdido'?'block':'none';}
 function filtrarV(f,btn){
   filtroV=f;
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  // Só remove active dos botões de status (primeira linha)
+  btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const lista=filtroV==='todos'?cache:cache.filter(l=>l.status===filtroV);
+  aplicarFiltrosV();
+}
+
+function filtrarOpV(op,btn){
+  filtroOpV=op;
+  btn.parentElement.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  aplicarFiltrosV();
+}
+
+function aplicarFiltrosV(){
+  let lista = cache;
+  if (filtroV !== 'todos') lista = lista.filter(l=>l.status===filtroV);
+  if (filtroOpV !== 'todos') lista = lista.filter(l=>l.campanha===filtroOpV);
   renderLista(lista);
 }
 
